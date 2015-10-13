@@ -17,7 +17,7 @@ struct HashTable{
 
 struct entry{
   unsigned char IPaddress[IP_ADDRESS_BUF];
-  unsigned char NextHop[8];
+  unsigned char NextHop[IP_ADDRESS_BUF];//Output Interface store
   struct entry *next;
 };
 
@@ -39,12 +39,15 @@ struct ip{
 
 void storeBloomFilter(struct ipaddress (*ip)[TEN_BIT], unsigned char* key, uint32_t hash, uint32_t *size, uint32_t prefix);
 void checkBloomFilter(struct ipaddress (*ip)[TEN_BIT], struct BloomFilter (*bf)[TEN_BIT], unsigned char* key, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t *size, uint32_t prefix, int *matchvector);
-void makeHashTable(struct HashTable (*bit)[TEN_BIT], unsigned char* key, uint32_t hash,  uint32_t prefix);
+//void makeHashTable(struct HashTable (*bit)[TEN_BIT], unsigned char* key, uint32_t hash,  uint32_t prefix);
+void storeHashTable(unsigned char* key, unsigned char* hop, uint32_t hash,  uint32_t prefix);
+void checkHashTable(unsigned char* key, uint32_t hash,  uint32_t prefix, uint32_t *comp);
 
 
 int main(int argc, char *argv[])
 {
   unsigned char  IPaddress[IP_ADDRESS_BUF], *IP;
+  unsigned char  NextHop[IP_ADDRESS_BUF], *HOP;
   unsigned int   hash, seed = 1;
   
   uint8_t  IP_Address[4]={};
@@ -61,17 +64,17 @@ int main(int argc, char *argv[])
   int MatchVector[DATA_SIZE];
   
   for(int loop=0;;loop++){
-    printf("Input IPv4-Address : ");
+    printf("Start : Input IPv4-Address = ");
     if(loop==0) scanf("%[1234567890./]", IPaddress);
     else scanf("%*c %[1234567890./]", IPaddress);
     IP = &IPaddress[0];
     //End store & check BloomFilter is input '0'.     
     if((strlen(IP)==1)&&(*IP=='0')){
       if(store_end==0){
-	printf("IP address has cashed in BloomFilter.\n");
-	printf("Next: check IP address exist or not in BloomFilter.\n");
+	printf("Now   : IP has cashed in BloomFilter and IP's Next Hop has cashed in Hash Table.\n");
+	printf("Next  : check IP address exist or not in BloomFilter and Hash Table.\n");
       }else{
-	printf("End to IP address check in BloomFilter.\n");
+	printf("End   : IP address check in BloomFilter and Hash Table.\n");
 	break;
       }
       store_end++;
@@ -149,7 +152,14 @@ int main(int argc, char *argv[])
 	  BF[Prefix_len][result%TEN_BIT].bit = 1;
 	  storeBloomFilter(IPADDRESS,IPaddress,result,&ALREADY,Prefix_len);
 	}
+	if(ALREADY==0){
+	  printf("Please Input IP[%s]'s Next Hop : ",IPaddress);
+	  scanf("%*c %[1234567890.#]", NextHop);
+	  HOP = &NextHop[0];
+	}
 	ALREADY=0;
+	MurmurHash3_uint32_uint32(IP_2sin, 10, (void *)&result);
+	storeHashTable(IPaddress, NextHop, result, Prefix_len);
       }
       else if(store_end==1){//Check BloomFilter 
 	//Input IP length check
@@ -180,6 +190,7 @@ int main(int argc, char *argv[])
 	  printf("Error : Input IP-Address is not exist.\n");return 1;
 	}
 	check=0;
+
 	IP_2sin = IP_Address[0]<<24 | IP_Address[1]<<16 | IP_Address[2]<<8 | IP_Address[3];
 	uint32_t ip1,ip2,ip3,nisin=0,EXIST=0;
 	for(int i=32;i>=1;i--){
@@ -196,6 +207,12 @@ int main(int argc, char *argv[])
 	}
 	printf("\n");
 	EXIST=0;
+	for(int i=31;(i>=0)&&(EXIST==0);i--){
+	  nisin = IP_2sin>>(31-i);
+	  MurmurHash3_uint32_uint32(nisin, 10, (void *)&result);
+	  if(MatchVector[i]==1)  checkHashTable(IPaddress,result,i+1,&EXIST);
+	  if((i==0)&&(EXIST==0)) printf("IP[%s]'s data don't exist in Hash Table.\n",IPaddress);    
+	}
       }
     }
   }  
@@ -302,17 +319,16 @@ void checkBloomFilter(struct ipaddress (*ip)[TEN_BIT], struct BloomFilter (*bf)[
 }
   
 
-void makeHashTable(struct HashTable (*bit)[TEN_BIT], unsigned char* key, uint32_t hash,  uint32_t prefix){
+void storeHashTable(unsigned char* key, unsigned char* hop, uint32_t hash,  uint32_t prefix){
   uint32_t num = hash % TEN_BIT;
-  // uint32_t i=0;  
   struct entry *node;
-  
+
   if(HT[prefix][num].next == NULL){//Case: not hashing
     if((node= (struct entry*)malloc(sizeof(struct entry))) == NULL){
       printf("malloc error.\n"); exit(1);
     }
-    //node->hash = hash;
     strcpy(node->IPaddress,key);
+    strcpy(node->NextHop,hop);
     HT[prefix][num].next = node;
     node->next = NULL;
   }
@@ -322,22 +338,41 @@ void makeHashTable(struct HashTable (*bit)[TEN_BIT], unsigned char* key, uint32_
     head = HT[prefix][num].next;
     for(; head != NULL; head = head->next){
       if((strcmp(head->IPaddress,key))==0){
-	if(*size == 0) printf("same IP address exist in BloomFilter.\n");
-	*size=1;Break++;break;
+	//if(*size == 0) printf("same IP address exist in BloomFilter.\n");
+	//*size=1;Break++;break;
+	Break++;break;
       }
     }
     if(Break==0){
       if((node= (struct entry*)malloc(sizeof(struct entry))) == NULL){
 	printf("malloc error.\n"); exit(1);
       }
-      //node->hash = hash;
       strcpy(node->IPaddress,key);
+      strcpy(node->NextHop,hop);
       head = node;
       node->next = NULL;
     }
   }  
 }
 
+
+void checkHashTable(unsigned char* key, uint32_t hash,  uint32_t prefix, uint32_t *comp){
+  uint32_t num = hash % TEN_BIT;
+  struct entry *ht=HT[prefix][num].next;
+
+  //printf("key = %s, hash = %u, prefix = %u , comp=%u\n",key,hash, prefix, *comp);
+  //printf("%s\n",ht->IPaddress);
+  //if(*comp==0){
+    for(; ht!=NULL; ht=ht->next){
+      if((strcmp(ht->IPaddress,key))==0){
+	printf("IP[%s]'s Next Hop = %s\n",key,ht->NextHop);
+	*comp=1;
+	break;
+      }
+    }
+    //if((prefix==1)&&(*comp==0)) printf("IP[%s]'s data don't exist in Hash Table.\n",key);    
+    //}
+}
 
 uint32_t getblock32 ( const uint32_t * p, int i ){
   return p[i];
