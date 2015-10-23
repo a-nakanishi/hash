@@ -1,11 +1,11 @@
+#ifndef _VALUE_H_
+#define _VALUE_H_
+
 #define IP_ADDRESS_BUF 16
 #define DATA_SIZE 32
 #define EIGHT_BIT 256
-#define TEN_BIT 10
-//#define TEN_BIT 1024
-
-#ifndef _VALUE_H_
-#define _VALUE_H_
+//#define TEN_BIT 10
+#define TEN_BIT 1024
 
 struct HashTable{
   struct entry *next;  
