@@ -1,3 +1,6 @@
 IP[1.1.1.0]'s NextHop(LPM) = 1213
+IP[4.4.4.4]'s NextHop data not exist in Hash Table.
 IP[1.1.1.1]'s NextHop(ExM) = 1213
 IP[22.22.22.0]'s NextHop(LPM) = 22
+IP[1.1.0.0]'s NextHop(LPM) = 1213
+IP[1.0.0.0]'s NextHop data not exist in Hash Table.

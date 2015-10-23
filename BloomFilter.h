@@ -18,7 +18,7 @@ void storeBloomFilter(struct ipaddress (*ip)[TEN_BIT], unsigned char* key, uint3
     head = ip[prefix][num].next;
     for(; head != NULL; head = head->next){
       if((strcmp(head->IPaddress,key))==0){
-	if(*size == 0) printf("same IP address exist in BloomFilter.\n");
+	//if(*size == 0) printf("same IP address exist in BloomFilter.\n");
 	*size=1;Break++;break;
       }
     }
@@ -45,6 +45,43 @@ void checkBloomFilter(//struct ipaddress (*ip)[TEN_BIT],
   }
   else{
     matchvector[prefix-1] = 0;
+  }
+}
+
+
+void deleteBloomFilter(struct ipaddress (*ip)[TEN_BIT],
+		       struct BloomFilter (*bf)[TEN_BIT],unsigned char* key,
+		       uint32_t hash, uint32_t v1, uint32_t v2, uint32_t v3,
+		       uint32_t *size, uint32_t prefix){
+  uint32_t num = hash % TEN_BIT, num1 = v1 % TEN_BIT, num2 = v2 % TEN_BIT, num3 = v3 % TEN_BIT;  
+  struct ip *node,*head;
+  int Break=0;
+    
+  if(ip[prefix][num].next == NULL){//Case: not stand bit
+    //not operation
+  }
+  else{//Case: already bit stand
+    head = ip[prefix][num].next;
+    for(; head != NULL; head = head->next){
+      if((strcmp(head->IPaddress,key))==0){
+	//if(*size == 0) printf("same IP address exist in BloomFilter.\n");
+	node = head;
+	*size=1;
+	head = ip[prefix][num].next;
+	for(; head != NULL; head = head->next){
+	  if((head->next)==node){
+	    head->next = node->next;
+	    free(node);
+	    break;
+	  }
+	}
+	//Counting BloomFilter not consider
+	bf[prefix][num1].bit = 0;
+	bf[prefix][num2].bit = 0;
+	bf[prefix][num3].bit = 0;
+	break;
+      }
+    }
   }
 }
 

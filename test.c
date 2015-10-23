@@ -80,7 +80,7 @@ int main(int argc, char *argv[]){
 	    break;
 	  }
 	}
-	if((i==1)&&(EXIST==0)) fprintf(fp3,"IP[%s]'s NextHop data not exist in Hash Table.",ip2);
+	if((i==1)&&(EXIST==0)) fprintf(fp3,"IP[%s]'s NextHop data not exist in Hash Table.\n",ip2);
       }
     }
     fclose(fp2);
