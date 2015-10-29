@@ -1,5 +1,8 @@
 #ifndef _MURMURHASH_H_
 #define _MURMURHASH_H_
+
+#include "Value.h"
+
 #define	ROTL32(x,y)	rotl32(x,y)
 
 uint32_t getblock32 ( const uint32_t * p, int i );

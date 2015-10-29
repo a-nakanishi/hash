@@ -7,6 +7,11 @@
 //#define TEN_BIT 10
 #define TEN_BIT 1024
 
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
 struct HashTable{
   struct entry *next;  
 } HT[DATA_SIZE+1][TEN_BIT];
