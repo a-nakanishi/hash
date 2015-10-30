@@ -1,36 +1,28 @@
-CFLAGS=-O3 -Wall
-C=clang -stdlib=libc -std=c11
-LDFLAGS =
-LDLIBS = 
-BINDIR = ./bin
-BINNAME := simulator
-TARGET	:= $(BINDIR)/$(BINNAME)
-SUBDIRS =
-SOURCES := $(wildcard *.c) $(foreach d, $(SUBDIRS), $(wildcard $(d)/*.c))
-HEADERS := $(wildcard *.h) $(foreach d, $(SUBDIRS), $(wildcard $(d)/*.h))
-OBJECTS := $(SOURCES:%.c=%.o)
-FILES     := $(HEADERS) $(SOURCES) $(MAKEFILE_LIST)
-CXXFLAGS += $(foreach d, $(SUBDIRS), -I./$(d))
+CC = gcc
+CFLAGS = -std=c99 
+PROGRAM = simulator
+SOURCES = BloomFilter.c HashTable.c Operation.c MurmurHash.c test.c
+HEADERS = BloomFilter.h HashTable.h Operation.h MurmurHash.h Value.h
+OBJECTS = $(SOURCES:%.c=%.o)
+FILES = $(SOURCES) $(HEADERS)
+#OBJECTS = test.o BloomFilter.o HashTable.o Operation.o MurmurHash.o
 
-ifeq ($(strip $(BINDIR)), "")
-  BINDIR = ./
-endif
+out : $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) -o $(PROGRAM)
 
-all: $(TARGET)
-$(TARGET): $(OBJECTS)
-	@[ -d $(BINDIR) ] || mkdir -p $(BINDIR)
-	$(LINK.cc) $^ $(LOADLIBES) $(LDLIBS) -o $@
-clean:
-	@$(RM) $(OBJECTS) $(TARGET) *.bak *~ core* GTAGS GSYMS GRTAGS GPATH
-depend:
-	makedepend -Y -f $(MAKEFILE_LIST) -- $(foreach d, $(SUBDIRS), -I./$(d)) -- $(SOURCES)
-.PHONY: clean depend
-# DO NOT DELETE
+#$(CC) $(CFLAGS) -o $(PROGRAM) $(OBJECTS)
+#test.o: test.c
+#	$(CC) $(CFLAGS) -c test.c	
+#BloomFilter.o: BloomFilter.c
+#	$(CC) $(CFLAGS) -c BloomFilter.c	
+#HashTable.o: HashTable.c
+#	$(CC) $(CFLAGS) -c HashTable.c	
+#Operation.o: Operation.c
+#	$(CC) $(CFLAGS) -c Operation.c	
+#MurmurHash.o: MurmurHash.c
+#	$(CC) $(CFLAGS) -c MurmurHash.c	
 
-hash.o: HashTable.h entry.h
-main.o: BloomFilter.h HashTable.h hash.h entry.h
-
-#Makefile
-#test: test.c
-#	gcc -std=c99 test.c
-#	./a.out
+clean :
+	$(RM) $(OBJECTS)
+all:
+	clean $(PROGRAM)
