@@ -7,7 +7,7 @@ void storeBloomFilter(struct ipaddress (*ip)[TEN_BIT], unsigned char* key, uint3
   
   if(ip[prefix][num].next == NULL){//Case: not stand bit
     if((node= (struct ip*)malloc(sizeof(struct ip))) == NULL){
-      printf("malloc error.\n"); exit(1);
+      printf("malloc teerror.\n"); exit(1);
     }
     node->hash = hash;
     strcpy(node->IPaddress,key);

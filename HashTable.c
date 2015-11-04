@@ -1,4 +1,4 @@
-#include "Hashtable.h"
+#include "HashTable.h"
 
 void storeHashTable(struct HashTable (*ht)[TEN_BIT], unsigned char* key, unsigned char* hop, uint32_t hash, uint32_t ip_2sin, uint32_t prefix){
   uint32_t num = hash % TEN_BIT;

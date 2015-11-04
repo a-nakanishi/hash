@@ -1,0 +1,40 @@
+CXXFLAGS=-O3 -Wall
+CXX=clang++ -stdlib=libc++ -std=c++11
+LDFLAGS =
+LDLIBS = 
+BINDIR = ./bin
+BINNAME := simulator
+TARGET	:= $(BINDIR)/$(BINNAME)
+SUBDIRS =
+SOURCES := $(wildcard *.cpp) $(foreach d, $(SUBDIRS), $(wildcard $(d)/*.cpp))
+HEADERS := $(wildcard *.hpp) $(foreach d, $(SUBDIRS), $(wildcard $(d)/*.hpp))
+OBJECTS := $(SOURCES:%.cpp=%.o)
+FILES     := $(HEADERS) $(SOURCES) $(MAKEFILE_LIST)
+CXXFLAGS += $(foreach d, $(SUBDIRS), -I./$(d))
+
+ifeq ($(strip $(BINDIR)), "")
+  BINDIR = ./
+endif
+
+all: $(TARGET)
+$(TARGET): $(OBJECTS)
+	@[ -d $(BINDIR) ] || mkdir -p $(BINDIR)
+	$(LINK.cc) $^ $(LOADLIBES) $(LDLIBS) -o $@
+clean:
+	@$(RM) $(OBJECTS) $(TARGET) *.bak *~ core* GTAGS GSYMS GRTAGS GPATH
+depend:
+	makedepend -Y -f $(MAKEFILE_LIST) -- $(foreach d, $(SUBDIRS), -I./$(d)) -- $(SOURCES)
+.PHONY: clean depend
+# DO NOT DELETE
+
+hash.o: hash.hpp entry.hpp
+main.o: bloom.hpp hashtable.hpp hash.hpp entry.hpp
+
+
+
+
+
+#Makefile
+#test: test.c
+#	gcc -o -std=c99 test test.c -lm
+#	./a.out

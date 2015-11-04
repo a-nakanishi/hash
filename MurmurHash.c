@@ -1,4 +1,4 @@
-#include "MurMurHash.h"
+#include "MurmurHash.h"
 
 uint32_t getblock32 ( const uint32_t * p, int i ){
   return p[i];
