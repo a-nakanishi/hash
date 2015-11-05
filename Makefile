@@ -1,7 +1,3 @@
-#Makefile
-#	gcc -c -std=c99 test.c BloomFilter.c HashTable.c MurmurHash.c Operation.c
-#	gcc -o out test.o BloomFilter.o HashTable.o MurmurHash.o Operation.o 
-#	./out
 CC = gcc
 CFLAGS = -std=c99 
 PROGRAM = simulater

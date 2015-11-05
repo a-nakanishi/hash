@@ -23,6 +23,7 @@ int main(int argc, char *argv[]){
 
   unsigned char *outputFile="Output-NextHop.data";
 
+  //printf("a/n");
   if((fp1=fopen(inputFile,"r"))!=NULL){
     while(fgets(buf,sizeof(buf),fp1) != NULL){
       ip   = strtok(buf,",");
@@ -46,7 +47,7 @@ int main(int argc, char *argv[]){
     }
     fclose(fp1);
   }
-
+  //printf("a/n");
   if(((fp2=fopen(searchFile,"r"))!=NULL)&&((fp3=fopen(outputFile,"w"))!=NULL)){
     while(fgets(buf2,sizeof(buf2),fp2) != NULL){
       ip2  = strtok(buf2,"\n");
