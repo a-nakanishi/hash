@@ -14,6 +14,7 @@
 struct HashTable{
   struct entry *next;  
 } HT[DATA_SIZE+1][TEN_BIT];
+
 struct entry{
   unsigned char IPaddress[IP_ADDRESS_BUF];
   unsigned char NextHop[IP_ADDRESS_BUF];
@@ -24,9 +25,11 @@ struct entry{
 struct BloomFilter{
   uint32_t bit;
 } BF[DATA_SIZE+1][TEN_BIT];
+
 struct ipaddress{
   struct ip *next;
 } IP[DATA_SIZE+1][TEN_BIT];
+
 struct ip{
   uint32_t hash;
   unsigned char IPaddress[IP_ADDRESS_BUF];
