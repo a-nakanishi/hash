@@ -4,6 +4,8 @@
 #include "MurmurHash.h"
 #include "Value.h"
 
+#include <stdio.h>
+
 int main(int argc, char *argv[])
 {
     FILE *fp1, *fp2, *fp3;

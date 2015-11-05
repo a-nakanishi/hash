@@ -1,9 +1,6 @@
 #ifndef _VALUE_H_
 #define _VALUE_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdint.h>
 
 #define IP_ADDRESS_BUF 16

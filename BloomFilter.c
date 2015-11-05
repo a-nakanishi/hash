@@ -1,4 +1,6 @@
 #include "BloomFilter.h"
+#include <stdlib.h>
+
 
 void storeBloomFilter(struct ipaddress(*ip)[TEN_BIT], unsigned char *key, uint32_t hash, uint32_t *size, uint32_t prefix)
 {
