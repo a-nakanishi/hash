@@ -1,13 +1,16 @@
 CC = gcc
-CFLAGS = -std=c99 
+CFLAGS = -std=c99 -Wall
 PROGRAM = simulater
 SOURCES = test.c  BloomFilter.c HashTable.c Operation.c MurmurHash.c
 HEADERS = Value.h BloomFilter.h HashTable.h Operation.h MurmurHash.h
 OBJECTS = test.o  BloomFilter.o HashTable.o Operation.o MurmurHash.o
 
+.PHONY: run
+
 all : $(SOURCES)
 	$(CC) -c $(CFLAGS) $(SOURCES)
 	$(CC) -o $(PROGRAM) $(OBJECTS)
+run:
 	./$(PROGRAM)
 
 object : $(SOURCES)
