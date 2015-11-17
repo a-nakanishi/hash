@@ -96,58 +96,29 @@ void changeIPtoUINT(unsigned char *key, uint8_t *IP)
 
 void makeFIB(struct Name *list, unsigned char *key, unsigned char *hop, int flug){
   int prefix_len = 0;
-  int key_len = strlen(key);//char tmp[NAME_PREF_LEN]="";
+  int key_len = strlen(key);
   
   if(key_len > 1)
 	for(int i = 0; i < strlen(key); i++)
 	  if(*(key+i)=='/') prefix_len++;
   
-  list_add(list, prefix_len, key, hop);
-  
-  /*
-	if(flug==0){
-	//printf(":Prefix is [%s]\n",key);
-	for(int i = 0; i < strlen(key); i++) {
-	  //printf("%d,%d,%c\n",i,*(key+i+1),*(key+i+1));
-	  if(*(key+i)=='/'){
-		switch(i){
-		case 0 :	
-		  strncpy(tmp,key,1);
-		  tmp[1] = '\0';
-		  break;
-		default :
-		  strncpy(tmp,key,i);
-		  tmp[i] = '\0';
-		}
-		//printf(":Prefix is [%s]\n",tmp);
-		list_add(list, prefix_len, tmp, hop);
-		prefix_len++;
-	  }
-	  else if((*(key+i+1)=='\0')||(*(key+i+1)=='\n')){
-		strncpy(tmp,key,i+1);
-		tmp[i+1] = '\0';
-		//printf(":Prefix is [%s]\n",tmp);
-		list_add(list, prefix_len, tmp, hop);
-		prefix_len++;
-	  }
-	}
-	//printf("Prefix %d is [%s]\n",list->PrefixLength,list->NamePrefix);
-	}*/
+  list_add(list, prefix_len, key, hop);  
 }
 
 void LongestPrefixMatching(struct Name *list, struct BloomFilter (*bf)[TEN_BIT], unsigned char *key, int *MatchVector)
 {
-  int prefix_len = 0, key_len = 0, Flug = 0;
+  int prefix_len = 0, key_len = 0;
   char tmp[NAME_PREF_LEN]="";
   uint32_t hash1, hash2, hash3;
 
   memset(MatchVector,0,NAME_PREF_LEN);
-  /*	for(int i=NAME_PREF_LEN-1; i>=0; i--){
+  /*
+	for(int i=NAME_PREF_LEN-1; i>=0; i--){
 	  printf("%d", MatchVector[i]);
 	  if((i==8)||(i==16)||(i==24)) printf(" ");
 	}
-	printf("\n");*/
-
+	printf("\n");
+  */
   for(int i = 0; i < strlen(key); i++)
     if(*(key+i)=='/') prefix_len++;
 
@@ -156,10 +127,9 @@ void LongestPrefixMatching(struct Name *list, struct BloomFilter (*bf)[TEN_BIT],
   hash1 = MurmurHash3_x86_32 (key, key_len, 1);
   hash2 = MurmurHash3_x86_32 (key, key_len, 2);
   hash3 = MurmurHash3_x86_32 (key, key_len, 3);
-  //printf("through1\n");
   checkBloomFilter(bf, prefix_len, hash1, hash2, hash3, MatchVector);
-  //printf("through2\n");
   
+  //Longest Prefix Matching
   for(int j = strlen(key)-1; j > 0; j--) {
 	if(*(key+j)=='/'){
       strncpy(tmp,key,j);
@@ -182,12 +152,7 @@ void makeHash(struct Name *list){
     for(; node != NULL; node = node->next){
       len = strlen(node->NamePrefix);
       tmp = node->NamePrefix;
-      //strcpy(tmp, node->NamePrefix);
-      //MurmurHash3_x86_32 (tmp, len, 1, result1);
-      //MurmurHash3_x86_32 (tmp, len, 2, result2);
-      //MurmurHash3_x86_32 (tmp, len, 3, result3);
-      //result = MurmurHash3_x86_32 (tmp, len, 1);
-      //printf("%s,%u\n",node->NamePrefix,result);
+	  //printf("tmp = %s\n",tmp);
       node->hash1 = MurmurHash3_x86_32 (tmp, len, 1);
       node->hash2 = MurmurHash3_x86_32 (tmp, len, 2);
       node->hash3 = MurmurHash3_x86_32 (tmp, len, 3);

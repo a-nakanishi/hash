@@ -37,11 +37,13 @@ int main(int argc, char *argv[])
 		name = strtok(buf, ",");
 		hop  = strtok(NULL, "\n");
 		makeFIB(LIST, name, hop, 0);
-		makeHash(LIST);
+		//makeHash(LIST);
 		//splitName(list,buf);
 		//list_print(list);
 		//splitNamePrefixAndInputBF(buf);//syori : ~~ store BF made
       }
+	  //printf("OK\n");
+	  makeHash(LIST);
       storeBloomFilter(LIST, BF);
     }
 	//printf("OK\n");
