@@ -1,20 +1,25 @@
 CC = gcc
-CFLAGS = -std=c99 
+CFLAGS = -std=c99 #-Wall
 PROGRAM = simulater
 SOURCES = test.c  BloomFilter.c HashTable.c Operation.c MurmurHash.c
 HEADERS = Value.h BloomFilter.h HashTable.h Operation.h MurmurHash.h
 OBJECTS = test.o  BloomFilter.o HashTable.o Operation.o MurmurHash.o
 
-all : $(SOURCES) 
+all : $(SOURCES)
 	$(CC) -c $(CFLAGS) $(SOURCES)
 	$(CC) -o $(PROGRAM) $(OBJECTS)
+
+run:
 	./$(PROGRAM)
 
 object : $(SOURCES) $(HEADERS)
 	$(CC) -c $(CFLAGS) $(SOURCES)
 
-simulater:$(OBJECTS)
+exe:$(OBJECTS)
 	$(CC) -o $(PROGRAM) $(OBJECTS)
+
+#simulater.o: simulater.c Value.h
+#	$(CC) -c $(CFLAGS) test.c	
 
 test.o: test.c Value.h
 	$(CC) -c $(CFLAGS) test.c	
