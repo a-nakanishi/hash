@@ -15,12 +15,13 @@ int main(int argc, char *argv[])
     uint32_t IP_2sin = 0, pref_len = 0, Prefix_len = 0 , result = 0 , i;
     uint32_t ALREADY = 0; //0:already exist IP-data in BloomFilter  1:not
     uint32_t int_IPaddress[DATA_SIZE], MatchVector[NAME_PREF_LEN]={};
-
+	
     //unsigned char *inputFile = "Input-IP-Address.data";
     unsigned char *inputFile = "Register-Name-Prefix.data";
     unsigned char buf[EIGHT_BIT];
-    unsigned char *name, *hop;
+    unsigned char *name, *interface;
     unsigned char *ip, *pref;//, *hop;
+	uint32_t port_num = 0;
 
     //unsigned char *searchFile = "search-IP-Address.data";
     unsigned char *searchFile = "Search-Name-Prefix-NextHop.data";
@@ -29,14 +30,17 @@ int main(int argc, char *argv[])
     unsigned char *ip2, *hop2;
     uint32_t hash1, hash2, hash3, nisin = 0;
     uint32_t EXIST = 0; //0:exist search-IP-data in BloomFilter  1:not
-
+	
     unsigned char *outputFile = "Output-NextHop.data";
 
     if((fp1 = fopen(inputFile, "r")) != NULL) {
       while(fgets(buf, sizeof(buf), fp1) != NULL) {
 		name = strtok(buf, ",");
-		hop  = strtok(NULL, "\n");
-		makeFIB(LIST, name, hop, 0);
+		interface = strtok(NULL, "\n");
+		makeFIB(LIST, name, interface, 0);
+		//makeInterface(MBF, MEL, interface, port_num);//make Merged BloomFilter
+		makeInterface(MBF, name, interface, port_num);//make Merged BloomFilter
+		port_num++;
 		//makeHash(LIST);
 		//splitName(list,buf);
 		//list_print(list);
@@ -52,18 +56,29 @@ int main(int argc, char *argv[])
 		ip2  = strtok(buf2, "\n");
 	    LongestPrefixMatching(LIST, BF, ip2, MatchVector);//MatchVector作成まで	
 		//printf("OK\n");
-		printf("[ %s ]'s MatchVector = ",ip2);
+		checkInterface(MBF, ip2, MatchVector);
+		//printf("OK\n");
+		//checkMergedBloomFilter(MBF, ip2, MatchVector);
+		//printf("OK\n");
+		/*printf("[ %s ]'s MatchVector = ",ip2);
 		for(int i=NAME_PREF_LEN-1; i>=0; i--){
 		  printf("%d", MatchVector[i]);
 		  if((i==8)||(i==16)||(i==24)) printf(" ");
 		}
 		printf("\n");
-		
+		*/
       }
     }
 	//list_print(LIST);
 	//printf("OK\n");
 	
+	/*for(int i=0; i<=FORWARDING_PORT_NUM; i++){
+	  for(int j=0;j<MERGED_BF_SIZE;j++){
+		printf("%u",MBF[i][j].bit);
+	  }
+	  printf("\n");
+	  }*/
+
 	/*for(int i=0; i<=NAME_PREF_LEN; i++){
 	  for(int j=0;j<TEN_BIT;j++){
 	  printf("%u",BF[i][j].bit);

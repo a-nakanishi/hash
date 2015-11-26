@@ -11,7 +11,8 @@
 
 #define NAME_PREF_LEN 32
 #define NAME_PREF_BUF 1024
-#define FORWARDING_PORT_NUM 64
+#define FORWARDING_PORT_NUM 48
+#define MERGED_BF_SIZE 16
 
 struct HashTable {
     struct entry *next;
@@ -68,20 +69,18 @@ struct List{
   struct List *next;
 };
 
-
-
 struct MergedBloomFilter {
     uint32_t bit;
-} MBF[FORWARDING_PORT_NUM][TEN_BIT];
+} MBF[FORWARDING_PORT_NUM][MERGED_BF_SIZE];
 
 struct MergedEntry {
     struct MergedEntryList *next;
-} MEL[FORWARDING_PORT_NUM][TEN_BIT];
+} MEL[FORWARDING_PORT_NUM][MERGED_BF_SIZE];
 
 struct MergedEntryList {
-    uint32_t hash;
-    unsigned char IPaddress[IP_ADDRESS_BUF];
-    struct MergedEntryList *next;
+  unsigned char NamePrefix[NAME_PREF_BUF];  
+  unsigned char Interface[DATA_SIZE];  
+  struct MergedEntryList *next;
 };
 
 

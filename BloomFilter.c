@@ -6,7 +6,7 @@
 void storeBloomFilter(struct Name *list, struct BloomFilter (*bf)[TEN_BIT])
 {
   struct List *node;
-  uint32_t num1,num2,num3;
+  uint32_t num1, num2, num3;
   for(int i=0; i<=NAME_PREF_LEN; i++){
     if(list[i].next != NULL){
       if((node = (struct List *)malloc(sizeof(struct List))) == NULL) {
@@ -236,7 +236,7 @@ void storeStage1BloomFilter(struct MemoryNamePrefix (*name)[TEN_BIT], unsigned c
 	    for(; dbag != NULL; dbag = dbag->next) {
 	      printf("NPBF[%d][%d] = %s\n",pref_len,num,dbag->NamePrefix);
 	      }*/
-	}
+		}
 	//else free(head);
     }
 }
@@ -254,3 +254,39 @@ void checkStage1BloomFilter(struct MemoryNamePrefix (*name)[TEN_BIT],
     }
 }
 */
+
+
+void makeMergedBloomFilter(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], unsigned char *key, uint32_t hash1, uint32_t hash2, uint32_t hash3, int port_num)
+{
+  uint32_t port = port_num % FORWARDING_PORT_NUM;
+
+  mbf[port][hash1 % MERGED_BF_SIZE].bit++;
+  mbf[port][hash2 % MERGED_BF_SIZE].bit++;
+  mbf[port][hash3 % MERGED_BF_SIZE].bit++;
+}
+
+void checkMergedBloomFilter(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], uint32_t num1, uint32_t num2, uint32_t num3, uint32_t *flug){  
+  //uint32_t h1[FORWARDING_PORT_NUM]="", h2[FORWARDING_PORT_NUM]="", h3[FORWARDING_PORT_NUM]="", result[FORWARDING_PORT_NUM]="";
+  int h1[FORWARDING_PORT_NUM]={};
+  int h2[FORWARDING_PORT_NUM]={}; 
+  int h3[FORWARDING_PORT_NUM]={};
+  int result[FORWARDING_PORT_NUM]={};
+
+  for(int a=0; a<FORWARDING_PORT_NUM; a++)
+	if(mbf[a][num1 % MERGED_BF_SIZE].bit) h1[a] = 1;
+
+  for(int a=0; a<FORWARDING_PORT_NUM; a++) 
+	if(mbf[a][num2 % MERGED_BF_SIZE].bit) h2[a] = 1;
+
+  for(int a=0; a<FORWARDING_PORT_NUM; a++) 
+	if(mbf[a][num3 % MERGED_BF_SIZE].bit) h3[a] = 1;
+
+  for(int a=0; a<FORWARDING_PORT_NUM; a++){
+	result[a] = h1[a] & h2[a] & h3[a];  
+	if(result[a]){
+	  printf("interface = %d\n",a);
+	  *flug = 1;
+	  //break;
+	}
+  }
+}

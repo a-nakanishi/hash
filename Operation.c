@@ -94,7 +94,7 @@ void changeIPtoUINT(unsigned char *key, uint8_t *IP)
   }
   }*/
 
-void makeFIB(struct Name *list, unsigned char *key, unsigned char *hop, int flug){
+void makeFIB(struct Name *list, unsigned char *key, unsigned char *interface, int flug){
   int prefix_len = 0;
   int key_len = strlen(key);
   
@@ -102,8 +102,9 @@ void makeFIB(struct Name *list, unsigned char *key, unsigned char *hop, int flug
 	for(int i = 0; i < strlen(key); i++)
 	  if(*(key+i)=='/') prefix_len++;
   
-  list_add(list, prefix_len, key, hop);  
+  list_add(list, prefix_len, key, interface);  
 }
+
 
 void LongestPrefixMatching(struct Name *list, struct BloomFilter (*bf)[TEN_BIT], unsigned char *key, int *MatchVector)
 {
@@ -160,10 +161,46 @@ void makeHash(struct Name *list){
     }
     //printf("Prefix %d & NextHop is [ %s ][ %s ]\n",i,head->NamePrefix,head->NextHop);
   }
-
 }
 
-void list_add(struct Name *list, int len, unsigned char *key, unsigned char *hop){
+//void makeInterface(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], struct MergedEntry (*mel)[MERGED_BF_SIZE], unsigned char *key, unsigned char *interface, int port)
+void makeInterface(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], unsigned char *key, unsigned char *interface, int port_num)
+{
+  uint32_t len, hash1, hash2, hash3;
+  len = strlen(key);
+  hash1 = MurmurHash3_x86_32 (key, len, 1);
+  hash2 = MurmurHash3_x86_32 (key, len, 2);
+  hash3 = MurmurHash3_x86_32 (key, len, 3);
+  makeMergedBloomFilter(mbf, key, hash1, hash2, hash3, port_num);
+}
+
+void checkInterface(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], unsigned char *key, int *MatchVector)
+{
+  char *tmp;
+  int key_len, slash_count = 0;
+  uint32_t hash1, hash2, hash3, Flug = 0;
+
+  for(int i=NAME_PREF_LEN-1; i>=0; i++){
+	if(MatchVector[i]){
+	  for(int j = strlen(key)-1; j > 0; j--) {
+		if(*(key+j)=='/') slash_count++;
+		if(slash_count == i+1){
+		  strncpy(tmp,key,j);
+		  tmp[j] = '\0';
+		  key_len = strlen(tmp);
+		  hash1 = MurmurHash3_x86_32 (tmp, key_len, 1);
+		  hash2 = MurmurHash3_x86_32 (tmp, key_len, 2);
+		  hash3 = MurmurHash3_x86_32 (tmp, key_len, 3);
+		  checkMergedBloomFilter(mbf, hash1, hash2, hash3, &Flug);
+		  if(Flug!=0) break;
+		}
+	  }  
+	  if(Flug!=0) break;
+	}
+  }
+}
+
+void list_add(struct Name *list, int len, unsigned char *key, unsigned char *interface){
   struct List *node;
   
   //printf(":Prefix %d is [%s]\n",len,key);
@@ -173,7 +210,7 @@ void list_add(struct Name *list, int len, unsigned char *key, unsigned char *hop
   }
   if(list[len].next == NULL){
     strcpy(node->NamePrefix,key);
-    strcpy(node->NextHop,hop);
+    strcpy(node->NextHop,interface);
     list[len].next = node;
     node->next = NULL;
   }
@@ -190,7 +227,7 @@ void list_add(struct Name *list, int len, unsigned char *key, unsigned char *hop
     if((strcmp(head->NamePrefix, key)) == 0) Break++;
     if(Break==0){
       strcpy(node->NamePrefix,key);
-      strcpy(node->NextHop,hop);
+      strcpy(node->NextHop,interface);
       head->next = node;
       node->next = NULL;
     }
