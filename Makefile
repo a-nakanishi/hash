@@ -1,9 +1,12 @@
 CC = gcc
 CFLAGS = -std=c99 #-Wall
 PROGRAM = simulater
-SOURCES = test.c  BloomFilter.c HashTable.c Operation.c MurmurHash.c
-HEADERS = Value.h BloomFilter.h HashTable.h Operation.h MurmurHash.h
-OBJECTS = test.o  BloomFilter.o HashTable.o Operation.o MurmurHash.o
+#SOURCES = test.c  BloomFilter.c HashTable.c Operation.c MurmurHash.c
+#HEADERS = Value.h BloomFilter.h HashTable.h Operation.h MurmurHash.h
+#OBJECTS = test.o  BloomFilter.o HashTable.o Operation.o MurmurHash.o
+SOURCES = test.c  BloomFilter.c Operation.c MurmurHash.c
+HEADERS = Value.h BloomFilter.h Operation.h MurmurHash.h
+OBJECTS = test.o  BloomFilter.o Operation.o MurmurHash.o
 
 all : $(SOURCES)
 	$(CC) -c $(CFLAGS) $(SOURCES)
@@ -27,8 +30,8 @@ test.o: test.c Value.h
 BloomFilter.o: BloomFilter.c Value.h
 	$(CC) -c $(CFLAGS) BloomFilter.c	
 
-HashTable.o: HashTable.c Value.h
-	$(CC) -c $(CFLAGS) HashTable.c	
+#HashTable.o: HashTable.c Value.h
+#	$(CC) -c $(CFLAGS) HashTable.c	
 
 Operation.o: Operation.c Value.h
 	$(CC) -c $(CFLAGS) Operation.c	
