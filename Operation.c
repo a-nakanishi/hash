@@ -71,7 +71,7 @@ void makeHash(struct Name *list){
 }
 
 
-void makeInterface(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], unsigned char *key, unsigned char *interface, uint32_t *port)
+void makeInterface(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], unsigned char *key, unsigned char *interface, uint32_t *port)
 {
   uint32_t len, interface_num = 0, hash1, hash2, hash3;
   
@@ -79,7 +79,7 @@ void makeInterface(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], unsigned cha
   for(int i = 0; i < strlen(interface); i++)
 	interface_num = interface_num * 10 + *(interface + i) - '0';
  
-  if((0 <= interface_num) && (interface_num <= FORWARDING_PORT_NUM)){
+  if((0 <= interface_num) && (interface_num < FORWARDING_PORT_NUM)){
 	hash1 = MurmurHash3_x86_32 (key, len, 1);
 	hash2 = MurmurHash3_x86_32 (key, len, 2);
 	hash3 = MurmurHash3_x86_32 (key, len, 3);
@@ -92,7 +92,7 @@ void makeInterface(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], unsigned cha
   }
 }
 
-void checkInterface(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], unsigned char *key, int *MatchVector, uint32_t *default_router, uint32_t *interface_num)
+void checkInterface(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], unsigned char *key, int *MatchVector, uint32_t *default_router, uint32_t *interface_num)
 {
   char tmp[NAME_PREF_BUF]="";
   int key_len, slash_count = 0;
@@ -197,7 +197,7 @@ void Stage1_BloomFilter_print(struct BloomFilter (*list)[TEN_BIT]){
   printf("\n");
 }
 
-void Merged_BloomFilter_print(struct MergedBloomFilter (*list)[MERGED_BF_SIZE]){
+void Merged_BloomFilter_print(struct MergedBloomFilter (*list)[FORWARDING_PORT_NUM]){
   printf("MergedBloomFilter:\n");
   for(int i=0; i<FORWARDING_PORT_NUM; i++){
 	printf("Port %d ",i);

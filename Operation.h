@@ -5,9 +5,9 @@
 
 void makeFIB(struct Name *list, unsigned char *key, unsigned char *interface ,uint32_t *port);
 
-void makeInterface(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], unsigned char *key, unsigned char *interface, uint32_t *port);
+void makeInterface(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], unsigned char *key, unsigned char *interface, uint32_t *port);
 
-void checkInterface(struct MergedBloomFilter (*mbf)[MERGED_BF_SIZE], unsigned char *key, int *MatchVector, uint32_t *default_router, uint32_t *interface_num);
+void checkInterface(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], unsigned char *key, int *MatchVector, uint32_t *default_router, uint32_t *interface_num);
 
 void LongestPrefixMatching(struct Name *list, struct BloomFilter (*bf)[TEN_BIT], unsigned char *key, int *MatchVector);
 
@@ -19,7 +19,7 @@ void list_print(struct Name *list);
 
 void Stage1_BloomFilter_print(struct BloomFilter (*list)[TEN_BIT]);
 
-void Merged_BloomFilter_print(struct MergedBloomFilter (*list)[MERGED_BF_SIZE]);
+void Merged_BloomFilter_print(struct MergedBloomFilter (*list)[FORWARDING_PORT_NUM]);
 
 void MatchVector_print(unsigned char *key, uint32_t array[]);
 

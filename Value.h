@@ -35,7 +35,8 @@ struct List{
 
 struct MergedBloomFilter {
     uint32_t bit;
-} MBF[FORWARDING_PORT_NUM][MERGED_BF_SIZE];
+} MBF[MERGED_BF_SIZE][FORWARDING_PORT_NUM];
+//} MBF[FORWARDING_PORT_NUM][MERGED_BF_SIZE];
 
 struct MergedEntry {
     struct MergedEntryList *next;

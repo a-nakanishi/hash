@@ -24,10 +24,6 @@ int main(int argc, char *argv[])
     unsigned char buf2[EIGHT_BIT];	
     unsigned char *search;
 	uint32_t next, DEFAULT = 0;
-
-    unsigned char *ip2, *hop2;
-    uint32_t hash1, hash2, hash3, nisin = 0;
-    uint32_t EXIST = 0; //0:exist search-IP-data in BloomFilter  1:not
 	
     //unsigned char *outputFile = "Output-NextHop.data";
 
@@ -42,6 +38,7 @@ int main(int argc, char *argv[])
       }
 	  makeHash(LIST);
       storeStage1BloomFilter(LIST, BF);
+	  
     }
 	//list_print(LIST);
 	//Stage1_BloomFilter_print(BF);
