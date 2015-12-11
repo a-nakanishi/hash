@@ -1,4 +1,3 @@
-
 #include "BloomFilter.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,29 +38,68 @@ void checkStage1BloomFilter(struct BloomFilter (*bf)[TEN_BIT], int pref_len, uin
 }
 
 
-void makeMergedBloomFilter(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], unsigned char *key, uint32_t hash1, uint32_t hash2, uint32_t hash3, int port_num)
+void makeMergedBloomFilter(struct MergedBloomFilter *mbf, unsigned char *key, uint32_t hash1, uint32_t hash2, uint32_t hash3, int port_num)
 {
-  uint32_t buf[FORWARDING_PORT_NUM][MERGED_BF_SIZE] = {};
+  //uint64_t bit = 1;
+  uint32_t bit = 1;
+  //printf("%u\n",bitport_num);
 
-  buf[port_num][hash1 % MERGED_BF_SIZE] = 1;
-  buf[port_num][hash2 % MERGED_BF_SIZE] = 1;
-  buf[port_num][hash3 % MERGED_BF_SIZE] = 1;
-
-  for(int a=0; a<MERGED_BF_SIZE; a++)
-	for(int b=0; b<FORWARDING_PORT_NUM; b++)
-	  mbf[a][b].bit |= buf[b][a];    
+  mbf[hash1 % MERGED_BF_SIZE].bit |= bit << port_num;
+  mbf[hash2 % MERGED_BF_SIZE].bit |= bit << port_num;
+  mbf[hash3 % MERGED_BF_SIZE].bit |= bit << port_num;
+  //printf("%u\n",mbf[hash1 % MERGED_BF_SIZE].bit);
 }
 
-void checkMergedBloomFilter(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], uint32_t num1, uint32_t num2, uint32_t num3, uint32_t *flug, uint32_t *interface_num){  
-  uint32_t result[FORWARDING_PORT_NUM] = {};
-  for(int a=0; a<FORWARDING_PORT_NUM; a++){
-	result[a] = 
-	  mbf[num1 % MERGED_BF_SIZE][a].bit &
-	  mbf[num2 % MERGED_BF_SIZE][a].bit & 
-	  mbf[num3 % MERGED_BF_SIZE][a].bit;  
-	if(result[a]){
-	  *interface_num = a;
-	  *flug = 1;
+void checkMergedBloomFilter(struct MergedBloomFilter *mbf, uint32_t num1, uint32_t num2, uint32_t num3, int *flug, int *interface_num){
+  uint32_t result;
+
+  result = mbf[num1 % MERGED_BF_SIZE].bit & mbf[num2 % MERGED_BF_SIZE].bit & mbf[num3 % MERGED_BF_SIZE].bit;  
+  //for(int i=0;i<MERGED_BF_SIZE;i++)
+  //	printf("mbf[%d] = %u\n",i+1,mbf[i].bit);
+  /*for(uint32_t i=0; i<FORWARDING_PORT_NUM; i++){
+  	if(result & Mask[i]) printf("%u\n",i);
+	}*/
+  if(result){
+	int case_check = 0;
+	printf("result = %u\n",result);
+	for(int i=0; ; i++){
+	  printf("flug = %d, %u\n",*flug,Mask[i]);
+	  //if((flug == 0) && (result == Mask[i])){//port only-one exist case
+	  if((case_check == 0) && (result == Mask[i])){//port only-one exist case
+		//printf("%u\n",Mask[i]);
+		*interface_num = i;
+		//printf("interface = %u\n",*interface_num);
+		case_check = 1;
+		//*flug = 1;
+	  }
+	  else if((result != Mask[i]) && (result & Mask[i]) && (case_check != 1)){//occur false positive
+		//if((result != Mask[i]) && (result & Mask[i]) && (*flug != 1)){//occur false positive
+		*interface_num |= 1 << i;
+		//printf("|%d|",i);
+		//*interface_num = i;
+		case_check = 2;
+		//*flug = 2;
+	  }
+	  //if(*flug) printf("%d ",i);
+	  //if((i >= FORWARDING_PORT_NUM)||(*flug == 1)){
+	  //if((i >= MERGED_BF_SIZE)||(case_check == 1)){
+	  if((i >= FORWARDING_PORT_NUM)||(case_check == 1)){
+		//printf("ok");
+		break;
+	  }
 	}
+	//printf("%d\n",case_check);
+	if(case_check == 1) *flug = 1;
+	if(case_check == 2) *flug = 2;
+	//printf("\n");
+	//printf("flug = %d\n",*flug);
+	//printf("%PRLu32",interface_num);
+	/*for(int i=0; ; i++){
+	  if(result & Mask[i]){
+		*interface_num = i;
+		*flug = 1;
+		break;
+	  }
+	  if(i >= FORWARDING_PORT_NUM) break;*/
   }
 }

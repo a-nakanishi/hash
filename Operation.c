@@ -71,7 +71,7 @@ void makeHash(struct Name *list){
 }
 
 
-void makeInterface(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], unsigned char *key, unsigned char *interface, uint32_t *port)
+void makeInterface(struct MergedBloomFilter *mbf, unsigned char *key, unsigned char *interface, uint32_t *port)
 {
   uint32_t len, interface_num = 0, hash1, hash2, hash3;
   
@@ -92,11 +92,12 @@ void makeInterface(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], unsigne
   }
 }
 
-void checkInterface(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], unsigned char *key, int *MatchVector, uint32_t *default_router, uint32_t *interface_num)
+void checkInterface(struct MergedBloomFilter *mbf, unsigned char *key, int *MatchVector, int *default_router, uint32_t *interface_num)
 {
   char tmp[NAME_PREF_BUF]="";
   int key_len, slash_count = 0;
-  uint32_t hash1, hash2, hash3, Flug = 0, num = 0;
+  uint32_t hash1, hash2, hash3;//, Flug = 0, num = 0;
+  int Flug = 0, num = 0;
   
   memset(tmp,0,NAME_PREF_BUF);
 
@@ -108,8 +109,8 @@ void checkInterface(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], unsign
   }
   printf("\n");
   */
-
-  //printf("%s\n",key);
+  
+  printf("---%s---\n",key);
   for(int i=NAME_PREF_LEN; i>=1; i--){
 	if(MatchVector[i-1]){
 	  for(int j = 1; j <= strlen(key); j++) {
@@ -119,28 +120,33 @@ void checkInterface(struct MergedBloomFilter (*mbf)[FORWARDING_PORT_NUM], unsign
 		  if(slash_count == i){
 			strncpy(tmp,key,j);
 			tmp[j] = '\0';
+			printf("%s : ",tmp);
 			key_len = strlen(tmp);
 			hash1 = MurmurHash3_x86_32 (tmp, key_len, 1);
 			hash2 = MurmurHash3_x86_32 (tmp, key_len, 2);
 			hash3 = MurmurHash3_x86_32 (tmp, key_len, 3);
-			Flug = 0;
+			//Flug = 0;
 			checkMergedBloomFilter(mbf, hash1, hash2, hash3, &Flug, &num);
 			//printf("tmp = %s\n",tmp);
 			//printf("num = %u\n",num);
 			//printf("Flug = %u\n",Flug);
 			*interface_num = num;
+			//if(Flug==1) break;
+			//if((Flug==1)||(Flug==2)) break;
 			if(Flug!=0) break;
 		  }
 		}
 	  }
 	  //slash_count=0;
-	  if(Flug!=0){
+	  if(Flug==1){
 		*default_router = 1;
 		break;
 	  }
 	}
   }
-  //printf("OK\n");
+  if(Flug==2) *default_router = 2;
+  
+  printf("\n");
 }
 
 
@@ -177,6 +183,74 @@ void list_add(struct Name *list, int len, unsigned char *key, unsigned char *int
 }
 
 
+//void Mask_Memory(uint64_t *mask){
+void Mask_Memory(uint32_t *mask){
+  mask[0] = 0x0000000000000001;//2^0
+  mask[1] = 0x0000000000000002;//2^1
+  mask[2] = 0x0000000000000004;//2^2
+  mask[3] = 0x0000000000000008;//2^3
+  mask[4] = 0x0000000000000010;//2^4
+  mask[5] = 0x0000000000000020;//2^5
+  mask[6] = 0x0000000000000040;//2^6
+  mask[7] = 0x0000000000000080;//2^7
+  mask[8] = 0x0000000000000100;//2^8
+  mask[9] = 0x0000000000000200;//2^9
+  mask[10] = 0x0000000000000400;//2^10
+  mask[11] = 0x0000000000000800;//2^11
+  mask[12] = 0x0000000000001000;//2^12
+  mask[13] = 0x0000000000002000;//2^13
+  mask[14] = 0x0000000000004000;//2^14
+  mask[15] = 0x0000000000008000;//2^15
+  mask[16] = 0x0000000000010000;//2^16
+  mask[17] = 0x0000000000020000;//2^17
+  mask[18] = 0x0000000000040000;//2^18
+  mask[19] = 0x0000000000080000;//2^19
+  mask[20] = 0x0000000000100000;//2^20
+  mask[21] = 0x0000000000200000;//2^21
+  mask[22] = 0x0000000000400000;//2^22
+  mask[23] = 0x0000000000800000;//2^23
+  mask[24] = 0x0000000001000000;//2^24
+  mask[25] = 0x0000000002000000;//2^25
+  mask[26] = 0x0000000004000000;//2^26
+  mask[27] = 0x0000000008000000;//2^27
+  mask[28] = 0x0000000010000000;//2^28
+  mask[29] = 0x0000000020000000;//2^29
+  mask[30] = 0x0000000040000000;//2^30
+  mask[31] = 0x0000000080000000;//2^31
+  //mask[32] = 0x0000000100000000;//2^32
+  //mask[33] = 0x0000000200000000;//2^33
+  //mask[34] = 0x0000000400000000;//2^34
+  //mask[35] = 0x0000000800000000;//2^35
+  //mask[36] = 0x0000001000000000;//2^36
+  //mask[37] = 0x0000002000000000;//2^37
+  //mask[38] = 0x0000004000000000;//2^38
+  //mask[39] = 0x0000008000000000;//2^39
+  //mask[40] = 0x0000010000000000;//2^40
+  //mask[41] = 0x0000020000000000;//2^41
+  //mask[42] = 0x0000040000000000;//2^42
+  //mask[43] = 0x0000080000000000;//2^43
+  //mask[44] = 0x0000100000000000;//2^44
+  //mask[45] = 0x0000200000000000;//2^45
+  //mask[46] = 0x0000400000000000;//2^46
+  //mask[47] = 0x0000800000000000;//2^47
+  //mask[48] = 0x0001000000000000;//2^48
+  //mask[49] = 0x0002000000000000;//2^49
+  //mask[50] = 0x0004000000000000;//2^50
+  //mask[51] = 0x0008000000000000;//2^51
+  //mask[52] = 0x0010000000000000;//2^52
+  //mask[53] = 0x0020000000000000;//2^53
+  //mask[54] = 0x0040000000000000;//2^54
+  //mask[55] = 0x0080000000000000;//2^55
+  //mask[56] = 0x0100000000000000;//2^56
+  //mask[57] = 0x0200000000000000;//2^57
+  //mask[58] = 0x0400000000000000;//2^58
+  //mask[59] = 0x0800000000000000;//2^59
+  //mask[60] = 0x1000000000000000;//2^60
+  //mask[61] = 0x2000000000000000;//2^61
+  //mask[62] = 0x4000000000000000;//2^62
+  //mask[63] = 0x8000000000000000; //2^63
+}
+
 void list_print(struct Name *list){
   for(int i=0; i<=NAME_PREF_LEN; i++){
     struct List *head = list[i].next;
@@ -197,16 +271,10 @@ void Stage1_BloomFilter_print(struct BloomFilter (*list)[TEN_BIT]){
   printf("\n");
 }
 
-void Merged_BloomFilter_print(struct MergedBloomFilter (*list)[FORWARDING_PORT_NUM]){
+void Merged_BloomFilter_print(struct MergedBloomFilter *list){
   printf("MergedBloomFilter:\n");
-  for(int i=0; i<FORWARDING_PORT_NUM; i++){
-	printf("Port %d ",i);
-	for(int j=0; j<MERGED_BF_SIZE; j++){
-	  printf("%d",list[i][j].bit);
-	}
-	printf("\n");
-  }
-  printf("\n");
+  //for(int i=0; i<MERGED_BF_SIZE; i++)
+  //	printf("%d : %llu\n",i,list[i].bit); 
 }
 
 void MatchVector_print(unsigned char *key, uint32_t array[]){
